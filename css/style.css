@@ -1,0 +1,50 @@
+/* Reseta o estilo do body */
+body {
+  margin: 0px;
+}
+
+/* Reseta o estilo da li */
+ul {
+  margin: 0px;
+  padding: 0px;
+  list-style: none;
+}
+
+/* Cada img vai ser display 
+block e com max-width de 100%
+ para não estourar o seu contaier */
+img {
+  display: block;
+  max-width: 100%;
+}
+
+/* O slide-wrapper tem a propriedade
+overflow: hidden para que não gere uma
+barra de rolagem já que a lista toda tem 
+a largura maior que a tela  */
+.slide-wrapper {
+  overflow: hidden;
+}
+
+/* O "contaier" (div com class slide)
+vai ter display: flex para que os elementos
+fiquem alinhados em um fileira */
+.slide {
+  display: flex;
+}
+
+.slide li {
+  /* Cada elemento da lista vai ter um 
+width de 80%, esse valor é descrito com
+"vw" que significa Virtual Width */
+  max-width: 80vw;
+
+  /* Os itens tem a propriedade flex-shrink: 0
+  para não estourar o container  */
+  flex-shrink: 0;
+
+  /* Os itens não vão ter mais que 800px */
+  max-width: 800px;
+
+  margin: 0 20px;
+}
