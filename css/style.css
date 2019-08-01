@@ -12,7 +12,7 @@ ul {
 
 /* Cada img vai ser display 
 block e com max-width de 100%
- para não estourar o seu contaier */
+para não estourar o seu contaier */
 img {
   display: block;
   max-width: 100%;
@@ -33,11 +33,20 @@ fiquem alinhados em um fileira */
   display: flex;
 }
 
+/* Esse estilo serve para otimizar a
+transformação do elementos do slide.
+Essa propriedade notifica o navegador que 
+o atributo "transform" vai mudar quando o 
+mouse passar por cima do elemento */
+.slide:hover {
+  will-change: transform;
+}
+
 .slide li {
   /* Cada elemento da lista vai ter um 
-width de 80%, esse valor é descrito com
-"vw" que significa Virtual Width */
-  max-width: 80vw;
+  width de 80%, esse valor é descrito com
+  "vw" que significa Virtual Width */
+  width: 80vw;
 
   /* Os itens tem a propriedade flex-shrink: 0
   para não estourar o container  */
@@ -47,4 +56,23 @@ width de 80%, esse valor é descrito com
   max-width: 800px;
 
   margin: 0 20px;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .4);
+
+  /* Transforma os elementos que não estão 
+  ativos para que fiquem um pouco menores e 
+  opacos */
+  opacity: .8;
+  transform: scale(.8);
+
+  /* Suaviza o resing dos elementos 
+  quando entram e saem de evidência na tela */
+  transition: .4s;
+}
+
+/* Coloca o elemento ativo em evidência na tela */
+.slide li.active {
+  opacity: 1;
+  transform: scale(1);
 }
