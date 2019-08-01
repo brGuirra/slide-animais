@@ -48,23 +48,46 @@ export default class Slide {
   // Função que inicia os eventos de slide, ela 
   // adiciona o evento de mousemove ao wrapper.
   onStart(event) {
-    event.preventDefault();
+    let moveType;
 
-    // O valor da propriedade "clientX" 
-    // indica em que lugar da página 
-    // foi feito o click. Isso serve como
-    // referência para identificar o 
-    // movimento do elemento.
-    this.dist.startX = event.clientX;
-    this.wrapper.addEventListener('mousemove', this.onMove);
+    // Verifica qual tipo de evento que ocorreu.
+    if (event.type === 'mousedown') {
+      event.preventDefault();
+
+      // O valor da propriedade "clientX" 
+      // indica em que lugar da página 
+      // foi feito o click. Isso serve como
+      // referência para identificar o 
+      // movimento do elemento.
+      this.dist.startX = event.clientX;
+      
+      // Atribiu o evento de mousemove.
+      moveType = 'mousemove';
+    } else {
+      // No caso to toque as propriedades não 
+      // iguais, no valor abaixo é pego a posição
+      // onde ocorreu o primeiro toque do usuráio.
+      this.dist.startX = event.changedTouches[0].clientX;
+
+      // Atribui o evento de touchmove
+      moveType = 'touchmove';
+    }
+    
+    this.wrapper.addEventListener(moveType, this.onMove);
   }
 
   // Função que move o elemento pela tela
   // com base nos valores cálculados.
   onMove(event) {
+    // Essa variável armazena a posição do ponteiro,
+    // foi criado um ternáro porque o nome da propriedade
+    // que armazena esse valor muda conforme o tipo do evento.
+    const pointerPosition = (event.type === 'mousemove') ? event.clientX 
+      : event.changedTouches[0].clientX;
+
     // Armazena a posição final do elemento,
     // ou seja, onde o usuário soltou o click.
-    const finalPosition = this.updatePosition(event.clientX);
+    const finalPosition = this.updatePosition(pointerPosition);
 
     // Ativa a função para mover o elemento no
     // DOM com base no valor da posição final 
@@ -75,8 +98,14 @@ export default class Slide {
   // Função que termina os eventos do slide, ela 
   // remove o mousemove do wrapper.
   onEnd(event) {
+    // Essa variável identifica o tipo de evento
+    // que está sendo usado para movimentar 
+    // o elemento na tela. É preciso saber isso 
+    // para que o evento seja encerrado corretamente.
+    const moveType = (event.type === 'mouseup') ? 'mousemove' : 'touchmove';
+
     // Remove o evento de "mousemove" do wrapper.
-    this.wrapper.removeEventListener('mousemove', this.onMove);
+    this.wrapper.removeEventListener(moveType, this.onMove);
 
     this.dist.finalPosition = this.dist.movedPosition;
   }
@@ -85,7 +114,9 @@ export default class Slide {
   // para que haja a interação com o elemento.
   addSlideEvents() {
     this.wrapper.addEventListener('mousedown', this.onStart);
+    this.wrapper.addEventListener('touchstart', this.onStart);
     this.wrapper.addEventListener('mouseup', this.onEnd);
+    this.wrapper.addEventListener('touchend', this.onEnd);
   }
 
   // Função que ativa os binds necessários 
