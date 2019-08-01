@@ -1,3 +1,5 @@
+import debounce from './debounce.js';
+
 export default class Slide {
   constructor(slide, wrapper) {
     // Armazena o slide que vai ser animado.
@@ -6,7 +8,11 @@ export default class Slide {
     // Armazena o wrapper do elemento que vai ser animado.
     this.wrapper = document.querySelector(wrapper);
 
+    // Armanzena as distâncias relativas a posição do elemento.
     this.dist = { finalPosition: 0, startX: 0, movement: 0 };
+
+    // Classe que adiciona o CSS e Resize.
+    this.activeClass = 'active';
   }
 
   // Método que adiciona transição no
@@ -172,14 +178,6 @@ export default class Slide {
     this.wrapper.addEventListener('touchend', this.onEnd);
   }
 
-  // Função que ativa os binds necessários 
-  // para os callbacks.
-  bindEvents() {
-    this.onStart = this.onStart.bind(this);
-    this.onMove = this.onMove.bind(this);
-    this.onEnd = this.onEnd.bind(this);
-  }
-
   // PARTE QUE CONTÉM AS CONFIGURAÇÕES DOS SLIDES
 
   // Função que calcula a posição em que o elemento
@@ -253,6 +251,15 @@ export default class Slide {
 
     // Atualiza a posição final do elemento.
     this.dist.finalPosition = activeSlide.position;
+
+    // Adicona a classe "active" ao elemento 
+    // que vai vir a tela.
+    this.changeActiveClass();
+  }
+
+  changeActiveClass() {
+    this.slideArray.forEach(item => item.element.classList.remove(this.activeClass));
+    this.slideArray[this.index.active].element.classList.add(this.activeClass);
   }
 
   // Ativa o slide anterior, se houver.
@@ -260,10 +267,35 @@ export default class Slide {
     if (this.index.prev !== undefined) this.changeSlide(this.index.prev);
   }
  
- // Ativa o slide seguinte, se houver.
- activeNextSlide() {
-  if (this.index.next !== undefined) this.changeSlide(this.index.next);
-}
+  // Ativa o slide seguinte, se houver.
+  activeNextSlide() {
+    if (this.index.next !== undefined) this.changeSlide(this.index.next);
+  }
+
+  // Função recalcula e posiciona os elementos
+  // se houver um resizing na tela.
+  onResize() {
+    setTimeout(() => {
+      this.slidesConfig();
+      this.changeSlide(this.index.active);
+    }, 500);
+  }
+
+  addResizeEvent() {
+    window.addEventListener('resize', this.onResize);
+  }
+
+  // Função que ativa os binds necessários 
+  // para os callbacks.
+  bindEvents() {
+    this.onStart = this.onStart.bind(this);
+    this.onMove = this.onMove.bind(this);
+    this.onEnd = this.onEnd.bind(this);
+
+    // Ativa a função de debounce para que o
+    // evento de resize não ocorra tantas vezes.
+    this.onResize = debounce(this.onResize.bind(this), 200);
+  }
 
   // Função que inicia os métodos da classe,
   // ela começa pelo bindEvents() para que o 
@@ -283,6 +315,7 @@ export default class Slide {
 
     this.addSlideEvents();
     this.slidesConfig();
+    this.addResizeEvent();
     return this;
   }
 }
