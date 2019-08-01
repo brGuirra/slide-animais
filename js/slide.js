@@ -9,6 +9,14 @@ export default class Slide {
     this.dist = { finalPosition: 0, startX: 0, movement: 0 };
   }
 
+  // Método que adiciona transição no
+  // slide, ele só vai alterar a proprieda
+  // de forma efetiva se o valor de active 
+  // for "true".
+  transition(active) {
+    this.slide.style.transition = active ? 'transform .3s' : '';
+  }
+
   // Função que adiciona a proprieda "tranform" no
   // elemento no DOM para que ela se mova conforme o
   // valor de "distX", que contém a posição final do e
@@ -64,7 +72,7 @@ export default class Slide {
       // Atribiu o evento de mousemove.
       moveType = 'mousemove';
     } else {
-      // No caso to toque as propriedades não 
+      // No caso do toque as propriedades não 
       // iguais, no valor abaixo é pego a posição
       // onde ocorreu o primeiro toque do usuráio.
       this.dist.startX = event.changedTouches[0].clientX;
@@ -73,7 +81,14 @@ export default class Slide {
       moveType = 'touchmove';
     }
     
+    // Adiciona o evento ao wrapper para que 
+    // a interação comece.
     this.wrapper.addEventListener(moveType, this.onMove);
+
+    // Sempre que o evento de movimento do slide
+    // começar esse valor vai ser "false" para que
+    // a movimentação do elemento seja mais fluida.
+    this.transition(false);
   }
 
   // Função que move o elemento pela tela
@@ -107,7 +122,45 @@ export default class Slide {
     // Remove o evento de "mousemove" do wrapper.
     this.wrapper.removeEventListener(moveType, this.onMove);
 
+    // A posição final vai ser igual a última 
+    // posição de movimento para que caso haja
+    // nova interação continue de onde parou.
     this.dist.finalPosition = this.dist.movedPosition;
+
+    // Adiciona a transição para que o
+    // movimento até o elemento que vai
+    // estar na tela seja mais suave.
+    this.transition(true);
+
+    // Ao final da movimentação é movido para o 
+    // slide correto.
+    this.changeSlideOnEnd();
+  }
+
+  // Função que vai colocar o elemento anterior ou
+  // seguinte no centro conforme o usuário movimenta.
+  changeSlideOnEnd() {
+    // O valor que foi movimento pelo usuáior deve
+    // ser positivo para que vá para o slide seguinte.
+    // Também não pode ser undefined porque isso significa
+    // que o usuário está no último elemento.
+    if (this.dist.movement > 120 && this.index.next !== undefined) {
+      this.activeNextSlide();
+
+    // Se o valor que foi movimentado for negativo vai
+    // mover para o slide anterior. Esse valor também
+    // não pode ser undefined porque isso sigfica que
+    // o usuário está no primeiro elemento.  
+    } else if (this.dist.movement < -120 && this.index.prev !== undefined) {
+      this.activePrevSlide();
+
+    // Se nenhuma das duas condições anteriores for
+    // atendida o usuário não moveu o suficiente
+    // para mudar de slide ou não tem elemento 
+    // na direção que ele está mexendo.  
+    } else {
+      this.changeSlide(this.index.active);
+    }
   }
 
   // Função que adiciona os eventos ao wrapper 
@@ -202,11 +255,32 @@ export default class Slide {
     this.dist.finalPosition = activeSlide.position;
   }
 
+  // Ativa o slide anterior, se houver.
+  activePrevSlide() {
+    if (this.index.prev !== undefined) this.changeSlide(this.index.prev);
+  }
+ 
+ // Ativa o slide seguinte, se houver.
+ activeNextSlide() {
+  if (this.index.next !== undefined) this.changeSlide(this.index.next);
+}
+
   // Função que inicia os métodos da classe,
   // ela começa pelo bindEvents() para que o 
   // "this" dos métodos esteja correto.
   init() {
     this.bindEvents();
+    
+    // O elemento precisa começar
+    // tendo essa propriedae porque
+    // se o usuário estiver tentando
+    // mover para um lado que não tem
+    // novos elementos vai retornar
+    // para o elemento que estava antes, 
+    // com "transition" essa animação 
+    // não fica tão seca.
+    this.transition(true);
+
     this.addSlideEvents();
     this.slidesConfig();
     return this;
