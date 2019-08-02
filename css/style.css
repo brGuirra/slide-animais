@@ -76,3 +76,27 @@ mouse passar por cima do elemento */
   opacity: 1;
   transform: scale(1);
 }
+
+/* Alinha os elementos de navegação ao centro e 
+coloca um pequena margem em relação aos slides */
+[data-control="slide"] {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+[data-control="slide"] li a{
+  display: block;
+
+  /* Transforma os elementos em círculos */
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+
+  margin: 5px;
+  background: #FB5;
+}
+
+[data-control="slide"] li.active a, [data-control="slide"] li a:hover {
+  background: #E54;
+}

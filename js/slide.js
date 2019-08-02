@@ -13,6 +13,10 @@ export class Slide {
 
     // Classe que adiciona o CSS e Resize.
     this.activeClass = 'active';
+
+    // Evento custom criado para integrar a mudança 
+    // de slide com a barra de navegação.
+    this.changeEvent = new Event('changeEvent');
   }
 
   // Método que adiciona transição no
@@ -255,6 +259,13 @@ export class Slide {
     // Adicona a classe "active" ao elemento 
     // que vai vir a tela.
     this.changeActiveClass();
+
+    // O evento que foi criado custom é adicionado 
+    // ao wrapper sempre que ocorrer a mudança de
+    // um slide. Isso vai ser usado para indicar a 
+    // barra de navegação que houve mudança para 
+    // que o item ativo seja atualizado. 
+    this.wrapper.dispatchEvent(this.changeEvent);
   }
 
   changeActiveClass() {
@@ -335,6 +346,15 @@ export class Slide {
 // pelos elementos dos slide.
 
 export default class SlideNav extends Slide {
+  // O método bindControlEvents() é acionado 
+  // no constructor para que o this da função
+  // de callback esteja correto. É preciso
+  // passar os mesmos argumentos da classe pai em "super". 
+  constructor(slide, wrapper) {
+    super(slide, wrapper);
+    this.bindControlEvents();
+  }
+
   // Função que seleciona os botões que vão
   // servir para navegação.
   addArrow(prev, next) {
@@ -348,5 +368,73 @@ export default class SlideNav extends Slide {
   addArrowEvent() {
     this.prevElement.addEventListener('click', this.activePrevSlide);
     this.nextElement.addEventListener('click', this.activeNextSlide);
+  }
+
+  createControl() {
+    // Cria o elemento que vai ser o container.
+    const control = document.createElement('ul');
+
+    // Atribui o atributo data para que esse
+    // elemento possa ser estilizado depois.
+    control.dataset.control = 'slide';
+
+    // Cria uma "li" com um "a" para cada elemento que tem
+    // em "slideArray". Ao index é adicionado +1 só por 
+    // estética.
+    this.slideArray.forEach((item, index) => {
+      control.innerHTML += `<li><a href="#slide${index + 1}"></a></li>`
+    });
+
+    // Insere os elementos que foram criados no
+    // DOM logo abaixo do wrapper.
+    this.wrapper.appendChild(control);
+
+    return control;
+  }
+
+  // Função vai fazer com que o slide seja
+  // mudado quando houver o clique na navegação.
+  eventControl(item, index) {
+    item.addEventListener('click', (event) => {
+      event.preventDefault();
+      this.changeSlide(index);
+    });
+
+    // Adiciona o evento custom ao wrapper quando o 
+    // eventConrtol() ocorrer, ou seja, quando a navegação
+    // for adicionada a barra.
+    this.wrapper.addEventListener('changeEvent', this.activeControlItem)
+  }
+
+  activeControlItem() {
+    this.controlArray.forEach(item => item.classList.remove(this.activeClass));
+    this.controlArray[this.index.active].classList.add(this.activeClass);
+  }
+
+  addControl(customControl) {
+    // Vai armazenar o elemnto criado na classe,
+    // o usuário pode passar um elemento custom ou não.
+    this.control = document.querySelector(customControl) || this.createControl();
+
+    // Desestrutura o elemenot para criar uma Array
+    // com os filhos.
+    this.controlArray = [...this.control.children];
+
+    // Ativa o primeiro item do slide para que
+    // mostre que ele está selecionado.
+    this.activeControlItem();
+
+    // Aplica a função eventControl() para cada
+    // elmento da Array, como a estrutura do forEach()
+    // e dessa função são iguais, não precisa passar
+    // arguntemos e nem ativar ela dentro das chaves.
+    this.controlArray.forEach(this.eventControl);
+  }
+
+  // Função que dá bind aos metódos que são
+  // passados como callback.
+  bindControlEvents() {
+    this.eventControl = this.eventControl.bind(this);
+    this.activeControlItem = this.activeControlItem.bind(this);
   }
 }
