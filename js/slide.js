@@ -1,6 +1,6 @@
 import debounce from './debounce.js';
 
-export default class Slide {
+export class Slide {
   constructor(slide, wrapper) {
     // Armazena o slide que vai ser animado.
     this.slide = document.querySelector(slide);
@@ -295,6 +295,11 @@ export default class Slide {
     // Ativa a função de debounce para que o
     // evento de resize não ocorra tantas vezes.
     this.onResize = debounce(this.onResize.bind(this), 200);
+
+    // Bind dos envetos que são usados também na
+    // navegação por botões quando a classe é extendida.
+    this.activePrevSlide = this.activePrevSlide.bind(this);
+    this.activeNextSlide = this.activeNextSlide.bind(this);
   }
 
   // Função que inicia os métodos da classe,
@@ -316,6 +321,32 @@ export default class Slide {
     this.addSlideEvents();
     this.slidesConfig();
     this.addResizeEvent();
+
+    // É preciso ativar pelo menos uma 
+    // vez esse método porque ele configura
+    // os elementos do slide, sem isso os 
+    // outros métodos não vão funcionar.
+    this.changeSlide(0);
     return this;
+  }
+}
+
+// Classe que contém os métodos para navegação
+// pelos elementos dos slide.
+
+export default class SlideNav extends Slide {
+  // Função que seleciona os botões que vão
+  // servir para navegação.
+  addArrow(prev, next) {
+    this.prevElement = document.querySelector(prev);
+    this.nextElement = document.querySelector(next);
+    this.addArrowEvent();
+  }
+
+  // Função que adiciona os eventos aos botões
+  // de navagação.
+  addArrowEvent() {
+    this.prevElement.addEventListener('click', this.activePrevSlide);
+    this.nextElement.addEventListener('click', this.activeNextSlide);
   }
 }
