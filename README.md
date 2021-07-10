@@ -1,4 +1,4 @@
-#About
+# About
 
 Hi! 👋🏾
 
@@ -15,3 +15,4 @@ _This project is part of Origamid's JavaScript ES6 course, you can check the cou
 My certificate of JavaScript ES6 course:
 
 ![certificate](https://user-images.githubusercontent.com/53412533/125165110-e7b3c280-e16b-11eb-9c82-e1d9fc925dd0.jpg)
+
